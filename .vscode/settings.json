@@ -1,0 +1,9 @@
+{
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+        "*.kt": "${capture}.kts, ${capture}Test.kt",
+        "build.gradle.kts": "settings.gradle.kts, gradle.properties, gradlew, gradlew.bat, local.properties",
+        "AndroidManifest.xml": "google-services.json"
+    }
+}
