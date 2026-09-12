@@ -9,7 +9,16 @@ data class Anime(
     val type: String?,
     val episodes: Int?,
     val score: Double?,
+    val rating: String? = null,
+    val status: String? = null,
+    val aired: Aired? = null,
+    val members: Int? = null,
     val images: Images
+)
+data class Aired(
+    val from: String? = null,
+    val to: String? = null,
+    val string: String? = null
 )
 data class Images(
     val jpg: Jpg
