@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -43,11 +44,13 @@ class MainActivity : ComponentActivity() {
 fun AnimeApp() {
     val navController = rememberNavController()
     val viewModel: AnimeViewModel = viewModel()
-    val items = listOf(Screen.Anime, Screen.Favorite, Screen.About)
+    val characterViewModel: CharacterViewModel = viewModel()
+    val items = listOf(Screen.Anime, Screen.Characters, Screen.Favorite, Screen.About)
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
-    val isDetailScreen = currentRoute?.startsWith("detail/") == true
+    val isDetailScreen = currentRoute?.startsWith("detail/") == true ||
+            currentRoute?.startsWith("character_detail/") == true
 
     Scaffold(
         bottomBar = {
@@ -60,6 +63,10 @@ fun AnimeApp() {
                                     Screen.Anime -> Icon(
                                         Icons.Default.Movie,
                                         contentDescription = "Anime"
+                                    )
+                                    Screen.Characters -> Icon(
+                                        Icons.Default.Person,
+                                        contentDescription = "Characters"
                                     )
                                     Screen.Favorite -> Icon(
                                         Icons.Default.Favorite,
@@ -102,6 +109,14 @@ fun AnimeApp() {
                     }
                 )
             }
+            composable(Screen.Characters.route) {
+                CharacterListScreen(
+                    viewModel = characterViewModel,
+                    onCharacterClick = { characterId ->
+                        navController.navigate(Screen.CharacterDetail.createRoute(characterId))
+                    }
+                )
+            }
             composable(Screen.Favorite.route) {
                 FavoriteScreen(
                     viewModel = viewModel,
@@ -121,6 +136,17 @@ fun AnimeApp() {
                 DetailScreen(
                     animeId = animeId,
                     viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Screen.CharacterDetail.route,
+                arguments = listOf(navArgument("characterId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val characterId = backStackEntry.arguments?.getInt("characterId") ?: 0
+                CharacterDetailScreen(
+                    characterId = characterId,
+                    viewModel = characterViewModel,
                     onBackClick = { navController.popBackStack() }
                 )
             }

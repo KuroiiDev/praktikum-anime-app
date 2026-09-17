@@ -1,6 +1,7 @@
 package com.kuroii.ppb_mod2_kel13.network
 
 import com.kuroii.ppb_mod2_kel13.model.AnimeListResponse
+import com.kuroii.ppb_mod2_kel13.model.CharacterListResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -10,4 +11,7 @@ interface ApiService {
 
     @GET("anime")
     suspend fun searchAnime(@Query("q") query: String? = null): AnimeListResponse
+
+    @GET("top/characters")
+    suspend fun getTopCharacters(): CharacterListResponse
 }
