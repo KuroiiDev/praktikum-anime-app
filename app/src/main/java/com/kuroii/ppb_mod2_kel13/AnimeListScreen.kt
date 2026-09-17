@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +33,7 @@ fun AnimeListScreen(
     val animeList by viewModel.animeList.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val favoriteIds by viewModel.favoriteIds.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchTopAnime()
@@ -49,57 +52,71 @@ fun AnimeListScreen(
                         .clickable { onAnimeClick(anime.mal_id) },
                     elevation = CardDefaults.cardElevation(3.dp)
                 ) {
-                    Row(modifier = Modifier.padding(12.dp)) {
-                        Image(
-                            painter = rememberAsyncImagePainter(anime.images.jpg.image_url),
-                            contentDescription = anime.title,
-                            modifier = Modifier
-                                .width(85.dp)
-                                .height(125.dp)
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
-                        )
+                    Box {
+                        Row(modifier = Modifier.padding(12.dp)) {
+                            Image(
+                                painter = rememberAsyncImagePainter(anime.images.jpg.image_url),
+                                contentDescription = anime.title,
+                                modifier = Modifier
+                                    .width(85.dp)
+                                    .height(125.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
+                            )
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
 
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = anime.title,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Type: ${anime.type ?: "-"}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "Episodes: ${anime.episodes ?: 0}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "Score: ${anime.score ?: "N/A"}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "Rating: ${anime.rating ?: "-"}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "Status: ${anime.status ?: "-"}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            val airedFrom = anime.aired?.from?.take(10) ?: "-"
-                            val airedTo = anime.aired?.to?.take(10) ?: "-"
-                            Text(
-                                text = "Aired: $airedFrom - $airedTo",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "Members: ${anime.members ?: "-"}",
-                                style = MaterialTheme.typography.bodySmall
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = anime.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Type: ${anime.type ?: "-"}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = "Episodes: ${anime.episodes ?: 0}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = "Score: ${anime.score ?: "N/A"}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = "Rating: ${anime.rating ?: "-"}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = "Status: ${anime.status ?: "-"}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                val airedFrom = anime.aired?.from?.take(10) ?: "-"
+                                val airedTo = anime.aired?.to?.take(10) ?: "-"
+                                Text(
+                                    text = "Aired: $airedFrom - $airedTo",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = "Members: ${anime.members ?: "-"}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+
+                        val isFav = anime.mal_id in favoriteIds
+                        IconButton(
+                            onClick = { viewModel.toggleFavorite(anime.mal_id) },
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                imageVector = if (isFav) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                contentDescription = if (isFav) "Hapus dari favorit" else "Tambah ke favorit",
+                                tint = if (isFav) Color(0xFFFFD700) else Color.Gray
                             )
                         }
                     }

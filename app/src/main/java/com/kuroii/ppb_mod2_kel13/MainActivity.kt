@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.Icon
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
 fun AnimeApp() {
     val navController = rememberNavController()
     val viewModel: AnimeViewModel = viewModel()
-    val items = listOf(Screen.Anime, Screen.About)
+    val items = listOf(Screen.Anime, Screen.Favorite, Screen.About)
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
@@ -59,6 +60,10 @@ fun AnimeApp() {
                                     Screen.Anime -> Icon(
                                         Icons.Default.Movie,
                                         contentDescription = "Anime"
+                                    )
+                                    Screen.Favorite -> Icon(
+                                        Icons.Default.Favorite,
+                                        contentDescription = "Favorite"
                                     )
                                     Screen.About -> Icon(
                                         Icons.Default.Info,
@@ -91,6 +96,14 @@ fun AnimeApp() {
         ) {
             composable(Screen.Anime.route) {
                 AnimeListScreen(
+                    viewModel = viewModel,
+                    onAnimeClick = { animeId ->
+                        navController.navigate(Screen.Detail.createRoute(animeId))
+                    }
+                )
+            }
+            composable(Screen.Favorite.route) {
+                FavoriteScreen(
                     viewModel = viewModel,
                     onAnimeClick = { animeId ->
                         navController.navigate(Screen.Detail.createRoute(animeId))
