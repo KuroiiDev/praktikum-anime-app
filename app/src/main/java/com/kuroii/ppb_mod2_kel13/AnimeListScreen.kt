@@ -1,6 +1,7 @@
 package com.kuroii.ppb_mod2_kel13
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
-fun AnimeListScreen(viewModel: AnimeViewModel = viewModel()) {
+fun AnimeListScreen(
+    viewModel: AnimeViewModel = viewModel(),
+    onAnimeClick: (Int) -> Unit = {}
+) {
     val animeList by viewModel.animeList.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -41,7 +45,8 @@ fun AnimeListScreen(viewModel: AnimeViewModel = viewModel()) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp, horizontal = 4.dp),
+                        .padding(vertical = 6.dp, horizontal = 4.dp)
+                        .clickable { onAnimeClick(anime.mal_id) },
                     elevation = CardDefaults.cardElevation(3.dp)
                 ) {
                     Row(modifier = Modifier.padding(12.dp)) {

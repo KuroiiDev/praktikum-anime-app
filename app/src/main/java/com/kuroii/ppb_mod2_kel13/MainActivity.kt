@@ -21,6 +21,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.kuroii.ppb_mod2_kel13.ui.theme.PPB_Mod2_Kel13Theme
 
 class MainActivity : ComponentActivity() {
@@ -28,7 +31,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // Menggunakan nama Theme yang benar sesuai import
             PPB_Mod2_Kel13Theme {
                 AnimeApp()
             }
@@ -39,56 +41,75 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AnimeApp() {
     val navController = rememberNavController()
+    val viewModel: AnimeViewModel = viewModel()
     val items = listOf(Screen.Anime, Screen.About)
+
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStack?.destination?.route
+    val isDetailScreen = currentRoute?.startsWith("detail/") == true
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                val currentBackStack by navController.currentBackStackEntryAsState()
-                val currentRoute = currentBackStack?.destination?.route
-
-                items.forEach { screen ->
-                    NavigationBarItem(
-                        icon = {
-                            when (screen) {
-                                Screen.Anime -> Icon(
-                                    Icons.Default.Movie,
-                                    contentDescription = "Anime"
-                                )
-                                Screen.About -> Icon(
-                                    Icons.Default.Info,
-                                    contentDescription = "About"
-                                )
-                            }
-                        },
-                        label = { Text(screen.title) },
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (!isDetailScreen) {
+                NavigationBar {
+                    items.forEach { screen ->
+                        NavigationBarItem(
+                            icon = {
+                                when (screen) {
+                                    Screen.Anime -> Icon(
+                                        Icons.Default.Movie,
+                                        contentDescription = "Anime"
+                                    )
+                                    Screen.About -> Icon(
+                                        Icons.Default.Info,
+                                        contentDescription = "About"
+                                    )
+                                    else -> {}
                                 }
-                                launchSingleTop = true
-                                restoreState = true
+                            },
+                            label = { Text(screen.title) },
+                            selected = currentRoute == screen.route,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
-        // innerPadding sekarang berada di tempat yang tepat (trailing lambda Scaffold)
         NavHost(
             navController = navController,
             startDestination = Screen.Anime.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // Pastikan rute tujuan sesuai, sebaiknya gunakan route dari variabel screen
             composable(Screen.Anime.route) {
-                AnimeListScreen()
+                AnimeListScreen(
+                    viewModel = viewModel,
+                    onAnimeClick = { animeId ->
+                        navController.navigate(Screen.Detail.createRoute(animeId))
+                    }
+                )
             }
             composable(Screen.About.route) {
                 AboutScreen()
+            }
+            composable(
+                route = Screen.Detail.route,
+                arguments = listOf(navArgument("animeId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val animeId = backStackEntry.arguments?.getInt("animeId") ?: 0
+                DetailScreen(
+                    animeId = animeId,
+                    viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
             }
         }
     } // Penutup Scaffold

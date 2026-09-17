@@ -52,4 +52,8 @@ class AnimeViewModel : ViewModel() {
             }
         }
     }
+
+    fun getAnimeById(id: Int): Anime? {
+        return _allAnimeList.value.find { it.mal_id == id }
+    }
 }
